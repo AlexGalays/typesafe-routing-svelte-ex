@@ -1,5 +1,5 @@
 import { Route, Router } from './util/router'
-import { readable, writable } from 'svelte/store'
+import { readable } from 'svelte/store'
 import { userId } from './user'
 
 export const router = Router(
@@ -21,9 +21,3 @@ export const route = readable(router.route, (set) => {
 function onNotFound(reason: string) {
   console.error(reason)
 }
-
-
-
-type SimpleRoute = {name: 'routeA', params: {}} | {name: 'routeB', params: {id: string}} 
-
-export const simpleRoute = writable<SimpleRoute>({name: 'routeA', params: {}})
