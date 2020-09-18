@@ -1,7 +1,8 @@
 <script lang="typescript">
   import type { text } from 'svelte/internal'
+  import {fade} from 'svelte/transition'
   import Link from './Link.svelte'
-  import { router, route, simpleRoute } from './routerStore'
+  import { route } from './routerStore'
   import type { UserId } from './user'
 
   const userId = '33' as UserId
@@ -43,11 +44,11 @@
 
   <main>
     {#if currentRoute.name === 'index'}
-      <p>Index</p>
+      <p in:fade>Index</p>
     {:else if currentRoute.name === 'users'}
-      <p>Users</p>
+      <p in:fade>Users</p>
     {:else if currentRoute.name === 'user'}
-      <p>User #{currentRoute.params.id}</p>
+      <p in:fade>User #{currentRoute.params.id}</p>
     {/if}
   </main>
 </div>
