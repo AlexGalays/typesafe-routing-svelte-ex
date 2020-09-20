@@ -64,7 +64,10 @@ export function Router<
   let _route = notFound
 
   setRouteFromHistory()
-  addEventListener('popstate', setRouteFromHistory)
+  addEventListener('popstate', () => {
+    setRouteFromHistory()
+    fireOnChange()
+  })
 
   function setRouteFromHistory() {
     const path = location.pathname

@@ -1,7 +1,8 @@
 <script lang="typescript">
-  import type { text } from 'svelte/internal'
-  import {fade} from 'svelte/transition'
+  import Blue from './Blue.svelte'
+  import Green from './Green.svelte'
   import Link from './Link.svelte'
+  import Red from './Red.svelte'
   import { route } from './routerStore'
   import type { UserId } from './user'
 
@@ -30,6 +31,8 @@
     padding: 1em;
     max-width: 240px;
     margin: 0 auto;
+
+    --section-size: 200px;
   }
 </style>
 
@@ -44,11 +47,11 @@
 
   <main>
     {#if currentRoute.name === 'index'}
-      <p in:fade>Index</p>
+      <Red />
     {:else if currentRoute.name === 'users'}
-      <p in:fade>Users</p>
+      <Green />
     {:else if currentRoute.name === 'user'}
-      <p in:fade>User #{currentRoute.params.id}</p>
+      <Blue params={currentRoute.params} />
     {/if}
   </main>
 </div>
