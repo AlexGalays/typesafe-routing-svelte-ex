@@ -3,13 +3,13 @@
   import Green from './Green.svelte'
   import Link from './Link.svelte'
   import Red from './Red.svelte'
-  import { route } from './routerStore'
+  import { route as routeStore } from './routerStore'
   import type { UserId } from './user'
 
   const userId = '33' as UserId
 
   // https://github.com/sveltejs/language-tools/issues/493
-  $: currentRoute = $route
+  $: route = $routeStore
 </script>
 
 <style>
@@ -46,12 +46,12 @@
   </nav>
 
   <main>
-    {#if currentRoute.name === 'index'}
+    {#if route.name === 'index'}
       <Red />
-    {:else if currentRoute.name === 'users'}
+    {:else if route.name === 'users'}
       <Green />
-    {:else if currentRoute.name === 'user'}
-      <Blue params={currentRoute.params} />
+    {:else if route.name === 'user'}
+      <Blue params={route.params} />
     {/if}
   </main>
 </div>
