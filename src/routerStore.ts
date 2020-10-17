@@ -3,11 +3,11 @@ import { readable } from 'svelte/store'
 import { userId } from './user'
 
 export const router = Router(
-  [
-    Route('index', '/'),
-    Route('users', '/users'),
-    Route('user', '/users/:id', { id: userId }),
-  ],
+  {
+    index: Route('/'),
+    users: Route('/users'),
+    user: Route('/users/:id', { id: userId }),
+  },
   { onNotFound }
 )
 

@@ -1,60 +1,59 @@
 import {
   Validator,
-  AnyValidator,
   ObjectOf,
   object,
   errorDebugString,
-} from 'validation.ts'
+} from 'idonttrustlikethat'
+
+type AnyValidator = Validator<Object | null | undefined>
 
 // A simple, History-based typesafe router. The complexity is only found in the type correctness.
 // matching only occurs on the path portion of the url but query strings are passed along (though multivalued query params aren't supported)
 
-interface Router<ROUTES extends RouteDefinition<string, unknown>[]> {
+interface Router<ROUTES extends Record<string, RouteDefinition<string, {}>>> {
   readonly definitions: ROUTES
 
   readonly route: RouteUnionFromDefinitions<RoutesWithNotFound<ROUTES>>
   readonly onChange: (callback: () => void) => Unsubscribe
 
-  readonly push: <NAME extends ROUTES[number]['name']>(
+  readonly push: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    params: SerializableValues<
-      RouteByName<NAME, ROUTES[number]>['validator']['T']
+    ...params: NoParamIfEmptyParams<
+      SerializableValues<ROUTES[NAME]['validator']['T']>
     >
   ) => void
-  readonly replace: <NAME extends ROUTES[number]['name']>(
+
+  readonly replace: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    params: SerializableValues<
-      RouteByName<NAME, ROUTES[number]>['validator']['T']
+    ...params: NoParamIfEmptyParams<
+      SerializableValues<ROUTES[NAME]['validator']['T']>
     >
   ) => void
-  readonly link: <NAME extends ROUTES[number]['name']>(
+
+  readonly link: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    params: SerializableValues<
-      RouteByName<NAME, ROUTES[number]>['validator']['T']
+    ...params: NoParamIfEmptyParams<
+      SerializableValues<ROUTES[NAME]['validator']['T']>
     >
   ) => string
 }
 
-export function Route<
-  NAME extends string,
-  PARAMS extends Record<string, AnyValidator>
->(
-  name: NAME,
+type NoParamIfEmptyParams<PARAMS> = {} extends PARAMS ? [] : [PARAMS]
+
+export function Route<PARAMS extends Record<string, AnyValidator>>(
   path: string,
   params?: PARAMS
-): RouteDefinition<RouteNameLiteral<NAME>, ObjectOf<PARAMS>> {
-  return { name, path, validator: object(params || ({} as PARAMS)) }
+): { path: string; validator: Validator<ObjectOf<PARAMS>> } {
+  return { path, validator: object(params || ({} as PARAMS)) }
 }
 
-export function Router<
-  FIRSTROUTE extends RouteDefinition<string, {}>,
-  OTHERROUTES extends RouteDefinition<string, {}>[]
->(
-  definitions: [route0: FIRSTROUTE, ...routes: OTHERROUTES],
+export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
+  definitions: ROUTES,
   options: Options
-): Router<[FIRSTROUTE, ...OTHERROUTES]> {
-  const routes = definitions.reduce((acc, def) => {
-    acc[def.name] = { ...def, ...pathInfos(def.path) }
+): Router<RouteValueToDefinition<ROUTES>> {
+  const routes = Object.keys(definitions).reduce((acc, name) => {
+    const route = routes[name]
+    acc[name] = { ...route, name, ...pathInfos(route.path) }
     return acc
   }, {} as Record<string, ParsedRouteDefinition<string, {}>>)
 
@@ -87,7 +86,7 @@ export function Router<
 
       const validatedParams = parsedRoute.validator.validate(stringParams)
 
-      if (validatedParams.type === 'error') {
+      if (!validatedParams.ok) {
         return onRouteNotFound(
           'route match but params error. ' +
             errorDebugString(validatedParams.errors)
@@ -104,7 +103,7 @@ export function Router<
   }
 
   const PARAMS = /:[^\\?\/]*/g
-  function link(routeName: string, params: Record<string, string>) {
+  function link(routeName: string, params: Record<string, string> = {}) {
     const routeToLink = routes[routeName]
     const path = routeToLink.path.replace(PARAMS, (p) =>
       encodeURIComponent(params[p.substring(1)])
@@ -120,7 +119,7 @@ export function Router<
   const replace = changeRoute(true)
 
   function changeRoute(replace: boolean) {
-    return (routeName: string, params: Record<string, any>) => {
+    return (routeName: string, params: Record<string, any> = {}) => {
       const uri = link(routeName, params)
 
       if (replace) history.replaceState(uri, '', uri)
@@ -163,7 +162,7 @@ export function Router<
     push,
     replace,
     link,
-  } as any) as Router<[FIRSTROUTE, ...OTHERROUTES]>
+  } as any) as Router<RouteValueToDefinition<ROUTES>>
 }
 
 // Extracts a simple chain like /path/:id to a regexp and the list of path keys it found.
@@ -201,10 +200,23 @@ function parseQueryParams(query: string) {
 }
 
 // A route as defined during router initialization.
-interface RouteDefinition<NAME, PARAMS> {
+interface RouteDefinitionValue<PARAMS extends {}> {
+  path: string
+  validator: Validator<PARAMS>
+}
+
+interface RouteDefinition<NAME, PARAMS extends {}> {
   name: NAME
   path: string
   validator: Validator<PARAMS>
+}
+
+type RouteValueToDefinition<
+  ROUTES extends Record<string, RouteDefinitionValue<{}>>
+> = {
+  [NAME in keyof ROUTES]: NAME extends string
+    ? { name: NAME; path: string; validator: ROUTES[NAME]['validator'] }
+    : never
 }
 
 interface ParsedRouteDefinition<NAME, PARAMS>
@@ -222,32 +234,31 @@ interface Options {
   onNotFound: (reason: string) => void
 }
 
-// Transforms a widened string into its string literal.
-type RouteNameLiteral<NAME extends string> = { [k in NAME]: k }[NAME]
-
-type RouteByName<
-  NAME extends string,
-  ROUTES extends RouteDefinition<string, unknown>
-> = ROUTES extends { name: NAME } ? ROUTES : never
-
 type RouteUnionFromDefinitions<
-  ROUTES extends RouteDefinition<string, unknown>[]
+  ROUTES extends Record<string, RouteDefinition<string, {}>>
 > = {
-  [i in keyof ROUTES]: ROUTES[i] extends ROUTES[number]
-    ? CurrentRouteFromDefinition<ROUTES[i]>
+  [NAME in keyof ROUTES]: ROUTES[NAME] extends ROUTES[keyof ROUTES]
+    ? CurrentRouteFromDefinition<ROUTES[NAME]>
     : never
-}[number]
+}[keyof ROUTES]
 
 type CurrentRouteFromDefinition<
-  ROUTE extends RouteDefinition<string, unknown>
+  ROUTE extends RouteDefinition<string, {}>
 > = CurrentRoute<ROUTE['name'], ROUTE['validator']['T']>
 
 type Unsubscribe = () => void
 
-type RoutesWithNotFound<ROUTES extends RouteDefinition<string, unknown>[]> = [
-  ...ROUTES,
-  { name: 'notFound'; path: ''; validator: Validator<{}> }
-]
+type RoutesWithNotFound<
+  ROUTES extends Record<string, RouteDefinition<string, {}>>
+> = ROUTES & {
+  notFound: {
+    name: 'notFound'
+    path: ''
+    validator: Validator<{}>
+  }
+}
+
+type ValueOf<T> = T[keyof T]
 
 type OptionalKeys<T> = {
   [K in keyof T]: undefined extends T[K] ? K : never
@@ -265,16 +276,13 @@ type SerializableValues<T> = {
 export type RouteParams<
   ROUTER extends Router<any>,
   NAME extends string
-> = RouteByName<NAME, ROUTER['definitions'][number]>['validator']['T']
+> = ROUTER['definitions'][NAME]['validator']['T']
 
-
-type RouteAndParamsTemp<ROUTER extends Router<any>> = RouteAndParamsTemp2<
-  ROUTER['definitions']
->
-
-type RouteAndParamsTemp2<ROUTES extends RouteDefinition<string, unknown>[]> = {
-  [i in keyof ROUTES]: ROUTES[i] extends ROUTES[number]
-    ? RouteAndParamTuple<ROUTES[i]['name'], ROUTES[i]['validator']['T']>
+type RouteAndParamsTemp<
+  ROUTES extends Record<string, RouteDefinition<string, {}>>
+> = {
+  [NAME in keyof ROUTES]: ROUTES[NAME] extends ROUTES[keyof ROUTES]
+    ? RouteAndParamTuple<NAME, ROUTES[NAME]['validator']['T']>
     : never
 }
 
@@ -285,6 +293,6 @@ type RouteAndParamTuple<NAME, PARAMS> = PARAMS extends {}
   : [NAME, PARAMS]
 
 // The union of all valid route name + params tuples that could be passed as arguments to push/replace/link
-export type RouteAndParams<ROUTER extends Router<any>> = RouteAndParamsTemp<
-  ROUTER
->[number]
+export type RouteAndParams<ROUTER extends Router<any>> = ValueOf<
+  RouteAndParamsTemp<ROUTER['definitions']>
+>

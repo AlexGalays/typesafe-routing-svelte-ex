@@ -1,5 +1,7 @@
 type NativeMouseEvent = MouseEvent
 
 declare namespace DOM {
-  export type MouseEvent<T> = NativeMouseEvent & {target: EventTarget & T}
+  export type MouseEvent<T> = NativeMouseEvent & {
+    currentTarget: EventTarget & T
+  }
 }

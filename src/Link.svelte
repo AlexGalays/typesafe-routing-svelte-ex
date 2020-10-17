@@ -1,12 +1,12 @@
 <script type="typescript">
   import { router } from './routerStore'
-  import type {AppRouter} from './routerStore'
+  import type { AppRouter } from './routerStore'
   import type { RouteAndParams } from './util/router'
 
   export let route: RouteAndParams<AppRouter>
   export let text: string
 
-  const href = router.link(route[0], route[1] || {} as any)
+  const href = router.link(route[0], route[1] as any)
 
   let preventClickDefault = false
 
@@ -16,7 +16,9 @@
     )
 
     const isSelfTarget =
-      !evt.target || !evt.target.target || evt.target.target === '_self'
+      !evt.target ||
+      !evt.currentTarget.target ||
+      evt.currentTarget.target === '_self'
 
     if (
       isSelfTarget && // Ignore everything but links with target self
@@ -24,7 +26,7 @@
       !isModifiedEvent // ignore clicks with modifier keys
     ) {
       preventClickDefault = true
-      router.push(route[0], route[1] || {} as any)
+      router.push(route[0], route[1] as any)
     }
   }
 
