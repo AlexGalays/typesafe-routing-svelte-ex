@@ -40,9 +40,9 @@
   <h1>Routing example</h1>
 
   <nav>
-    <Link text="Index" route={['index']} />
-    <Link text="Users" route={['users']} />
-    <Link text="User" route={['user', { id: userId }]} />
+    <Link route={['index', {}]}>Index</Link>
+    <Link route={['users', {}]}>Users</Link>
+    <Link route={['user', { id: userId }]}>User</Link>
   </nav>
 
   <main>

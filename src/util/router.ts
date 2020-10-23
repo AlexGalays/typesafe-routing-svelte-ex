@@ -1,11 +1,4 @@
-import {
-  Validator,
-  ObjectOf,
-  object,
-  errorDebugString,
-} from 'idonttrustlikethat'
-
-type AnyValidator = Validator<Object | null | undefined>
+import { Validator, object, errorDebugString } from 'idonttrustlikethat'
 
 // A simple, History-based typesafe router. The complexity is only found in the type correctness.
 // matching only occurs on the path portion of the url but query strings are passed along (though multivalued query params aren't supported)
@@ -18,33 +11,25 @@ interface Router<ROUTES extends Record<string, RouteDefinition<string, {}>>> {
 
   readonly push: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    ...params: NoParamIfEmptyParams<
-      SerializableValues<ROUTES[NAME]['validator']['T']>
-    >
+    params: SerializableValues<ROUTES[NAME]['validator']['T']>
   ) => void
 
   readonly replace: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    ...params: NoParamIfEmptyParams<
-      SerializableValues<ROUTES[NAME]['validator']['T']>
-    >
+    params: SerializableValues<ROUTES[NAME]['validator']['T']>
   ) => void
 
   readonly link: <NAME extends keyof ROUTES>(
     routeName: NAME,
-    ...params: NoParamIfEmptyParams<
-      SerializableValues<ROUTES[NAME]['validator']['T']>
-    >
+    params: SerializableValues<ROUTES[NAME]['validator']['T']>
   ) => string
 }
 
-type NoParamIfEmptyParams<PARAMS> = {} extends PARAMS ? [] : [PARAMS]
-
-export function Route<PARAMS extends Record<string, AnyValidator>>(
+export function Route<PARAMS extends Validator<{}>>(
   path: string,
   params?: PARAMS
-): { path: string; validator: Validator<ObjectOf<PARAMS>> } {
-  return { path, validator: object(params || ({} as PARAMS)) }
+): { path: string; validator: PARAMS } {
+  return { path, validator: params || ((object({}) as unknown) as PARAMS) }
 }
 
 export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
@@ -52,7 +37,7 @@ export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
   options: Options
 ): Router<RouteValueToDefinition<ROUTES>> {
   const routes = Object.keys(definitions).reduce((acc, name) => {
-    const route = routes[name]
+    const route = definitions[name]
     acc[name] = { ...route, name, ...pathInfos(route.path) }
     return acc
   }, {} as Record<string, ParsedRouteDefinition<string, {}>>)
@@ -260,18 +245,9 @@ type RoutesWithNotFound<
 
 type ValueOf<T> = T[keyof T]
 
-type OptionalKeys<T> = {
-  [K in keyof T]: undefined extends T[K] ? K : never
-}[keyof T]
-
-type MandatoryKeys<T> = {
-  [K in keyof T]: undefined extends T[K] ? never : K
-}[keyof T]
-
 type SerializableValues<T> = {
-  [K in MandatoryKeys<T>]: T[K] extends number | string ? T[K] : string
-} &
-  { [K in OptionalKeys<T>]?: T[K] extends number | string ? T[K] : string }
+  [K in keyof T]: T[K] extends number | string | undefined ? T[K] : string
+}
 
 export type RouteParams<
   ROUTER extends Router<any>,
@@ -282,15 +258,9 @@ type RouteAndParamsTemp<
   ROUTES extends Record<string, RouteDefinition<string, {}>>
 > = {
   [NAME in keyof ROUTES]: ROUTES[NAME] extends ROUTES[keyof ROUTES]
-    ? RouteAndParamTuple<NAME, ROUTES[NAME]['validator']['T']>
+    ? [NAME, ROUTES[NAME]['validator']['T']]
     : never
 }
-
-type RouteAndParamTuple<NAME, PARAMS> = PARAMS extends {}
-  ? {} extends PARAMS
-    ? [NAME]
-    : [NAME, PARAMS]
-  : [NAME, PARAMS]
 
 // The union of all valid route name + params tuples that could be passed as arguments to push/replace/link
 export type RouteAndParams<ROUTER extends Router<any>> = ValueOf<

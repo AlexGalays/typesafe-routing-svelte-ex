@@ -1,12 +1,12 @@
-<script type="typescript">
+<script lang="typescript">
   import { router } from './routerStore'
   import type { AppRouter } from './routerStore'
   import type { RouteAndParams } from './util/router'
 
-  export let route: RouteAndParams<AppRouter>
-  export let text: string
+  export let route: RouteAndParams<AppRouter> | null
+  export let replace: boolean = false
 
-  const href = router.link(route[0], route[1] as any)
+  $: href = route ? router.link.apply(null, route as any) : location.href
 
   let preventClickDefault = false
 
@@ -14,7 +14,6 @@
     const isModifiedEvent = Boolean(
       evt.metaKey || evt.altKey || evt.ctrlKey || evt.shiftKey
     )
-
     const isSelfTarget =
       !evt.target ||
       !evt.currentTarget.target ||
@@ -26,7 +25,9 @@
       !isModifiedEvent // ignore clicks with modifier keys
     ) {
       preventClickDefault = true
-      router.push(route[0], route[1] as any)
+
+      if (replace) router.replace.apply(null, route as any)
+      else router.push.apply(null, route as any)
     }
   }
 
@@ -44,4 +45,6 @@
   }
 </style>
 
-<a {href} on:mousedown={onMouseDown} on:click={onClick}>{text}</a>
+<a {href} on:mousedown={onMouseDown} on:click={onClick}>
+  <slot />
+</a>

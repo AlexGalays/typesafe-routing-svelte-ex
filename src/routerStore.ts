@@ -1,12 +1,13 @@
 import { Route, Router } from './util/router'
 import { readable } from 'svelte/store'
 import { userId } from './user'
+import { object } from 'idonttrustlikethat'
 
 export const router = Router(
   {
     index: Route('/'),
     users: Route('/users'),
-    user: Route('/users/:id', { id: userId }),
+    user: Route('/users/:id', object({ id: userId })),
   },
   { onNotFound }
 )
