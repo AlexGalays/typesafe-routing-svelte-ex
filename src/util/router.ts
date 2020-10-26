@@ -251,14 +251,14 @@ type SerializableValues<T> = {
 
 export type RouteParams<
   ROUTER extends Router<any>,
-  NAME extends string
+  NAME extends keyof ROUTER['definitions']
 > = ROUTER['definitions'][NAME]['validator']['T']
 
 type RouteAndParamsTemp<
   ROUTES extends Record<string, RouteDefinition<string, {}>>
 > = {
   [NAME in keyof ROUTES]: ROUTES[NAME] extends ROUTES[keyof ROUTES]
-    ? [NAME, ROUTES[NAME]['validator']['T']]
+    ? [NAME, SerializableValues<ROUTES[NAME]['validator']['T']>]
     : never
 }
 

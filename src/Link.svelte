@@ -3,10 +3,10 @@
   import type { AppRouter } from './routerStore'
   import type { RouteAndParams } from './util/router'
 
-  export let route: RouteAndParams<AppRouter> | null
+  export let route: RouteAndParams<AppRouter>
   export let replace: boolean = false
 
-  $: href = route ? router.link.apply(null, route as any) : location.href
+  $: href = router.link(route[0], route[1])
 
   let preventClickDefault = false
 
@@ -26,8 +26,8 @@
     ) {
       preventClickDefault = true
 
-      if (replace) router.replace.apply(null, route as any)
-      else router.push.apply(null, route as any)
+      if (replace) router.replace(route[0], route[1])
+      else router.push(route[0], route[1])
     }
   }
 
