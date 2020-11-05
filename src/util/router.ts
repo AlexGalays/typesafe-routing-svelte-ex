@@ -94,7 +94,7 @@ export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
       encodeURIComponent(params[p.substring(1)])
     )
     const query = Object.keys(params)
-      .filter((p) => !routeToLink.keys.includes(p))
+      .filter((p) => !routeToLink.keys.includes(p) && params[p] !== undefined)
       .map((p) => `${p}=${encodeURIComponent(params[p])}`)
       .join('&')
     return path + (query.length ? `?${query}` : '')
