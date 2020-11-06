@@ -52,6 +52,8 @@
       <Green />
     {:else if route.name === 'user'}
       <Blue params={route.params} />
+    {:else}
+      <p>404</p>
     {/if}
   </main>
 </div>

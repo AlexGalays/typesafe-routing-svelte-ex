@@ -1,5 +1,5 @@
 import { Route, Router } from './util/router'
-import { readable } from 'svelte/store'
+import { derived, readable } from 'svelte/store'
 import { userId } from './user'
 import { object } from 'idonttrustlikethat'
 
@@ -14,10 +14,14 @@ export const router = Router(
 
 export type AppRouter = typeof router
 
-export const route = readable(router.route, (set) => {
+export const route = readable(router.route, set => {
   const stop = router.onChange(() => set(router.route))
   return stop
 })
+
+export const currentRoute = derived(route, r =>
+  r.name === 'notFound' ? undefined : r
+)
 
 function onNotFound(reason: string) {
   console.error(reason)
