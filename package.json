@@ -4,7 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public -s -q",
+    "start": "sirv public -s -q -p 8888",
     "validate": "svelte-check"
   },
   "devDependencies": {

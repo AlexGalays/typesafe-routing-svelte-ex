@@ -41,7 +41,7 @@
 
   <nav>
     <Link route={['index', {}]}>Index</Link>
-    <Link route={['users', {}]}>Users</Link>
+    <Link route={['users', { date: new Date().toISOString() }]}>Users</Link>
     <Link route={['user', { id: userId }]}>User</Link>
   </nav>
 
@@ -49,7 +49,7 @@
     {#if route.name === 'index'}
       <Red />
     {:else if route.name === 'users'}
-      <Green />
+      <Green params={route.params} />
     {:else if route.name === 'user'}
       <Blue params={route.params} />
     {:else}

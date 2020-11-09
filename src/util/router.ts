@@ -90,12 +90,12 @@ export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
   const PARAMS = /:[^\\?\/]*/g
   function link(routeName: string, params: Record<string, string> = {}) {
     const routeToLink = routes[routeName]
-    const path = routeToLink.path.replace(PARAMS, (p) =>
+    const path = routeToLink.path.replace(PARAMS, p =>
       encodeURIComponent(params[p.substring(1)])
     )
     const query = Object.keys(params)
-      .filter((p) => !routeToLink.keys.includes(p) && params[p] !== undefined)
-      .map((p) => `${p}=${encodeURIComponent(params[p])}`)
+      .filter(p => !routeToLink.keys.includes(p) && params[p] !== undefined)
+      .map(p => `${p}=${encodeURIComponent(params[p])}`)
       .join('&')
     return path + (query.length ? `?${query}` : '')
   }
@@ -110,11 +110,7 @@ export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
       if (replace) history.replaceState(uri, '', uri)
       else history.pushState(uri, '', uri)
 
-      _route = {
-        name: routeName,
-        params,
-      }
-
+      setRouteFromHistory()
       fireOnChange()
     }
   }
@@ -127,7 +123,7 @@ export function Router<ROUTES extends Record<string, RouteDefinitionValue<{}>>>(
   }
 
   function fireOnChange() {
-    subs.forEach((fn) => fn())
+    subs.forEach(fn => fn())
   }
 
   function onRouteNotFound(reason: string) {

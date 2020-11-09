@@ -1,12 +1,12 @@
 import { Route, Router } from './util/router'
 import { derived, readable } from 'svelte/store'
 import { userId } from './user'
-import { object } from 'idonttrustlikethat'
+import { isoDate, object } from 'idonttrustlikethat'
 
 export const router = Router(
   {
     index: Route('/'),
-    users: Route('/users'),
+    users: Route('/users', object({ date: isoDate })),
     user: Route('/users/:id', object({ id: userId })),
   },
   { onNotFound }

@@ -1,10 +1,14 @@
 <script lang="typescript">
-  import {fade} from 'svelte/transition'
+  import { fade } from 'svelte/transition'
+  import type { AppRouter } from './routerStore'
+  import type { RouteParams } from './util/router'
+
+  export let params: RouteParams<AppRouter, 'users'>
 </script>
 
 <style>
   div {
-    background-color: #66FF66;
+    background-color: #66ff66;
     color: white;
     width: var(--section-size);
     height: var(--section-size);
@@ -12,6 +16,8 @@
   }
 </style>
 
-<div in:fade={{duration: 120}}>
+<div in:fade={{ duration: 120 }}>
   <h2>Users</h2>
+
+  <p>{params.date.toDateString()}</p>
 </div>
