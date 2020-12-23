@@ -5,9 +5,7 @@
 
   export let extraClassNames: string | undefined = undefined
 
-  // Not passing a route will deactivate the link.
-  // This can be useful when the Link is the parent of many elements and it's not feasible to just rearrange the Element hierarchy.
-  export let route: RouteAndParams<AppRouter> | undefined = undefined
+  export let route: RouteAndParams<AppRouter>
   export let replace: boolean = false
 
   $: href = route ? router.link(route[0], route[1]) : undefined
@@ -15,8 +13,6 @@
   let preventClickDefault = false
 
   function onMouseDown(evt: DOM.MouseEvent<HTMLAnchorElement>) {
-    if (!route) return
-
     const isModifiedEvent = Boolean(
       evt.metaKey || evt.altKey || evt.ctrlKey || evt.shiftKey
     )
