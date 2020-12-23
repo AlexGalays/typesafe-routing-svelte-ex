@@ -1,7 +1,7 @@
 <script lang="typescript">
   import { fade } from 'svelte/transition'
   import type { AppRouter } from './routerStore'
-  import type { RouteParams } from './util/router'
+  import type { RouteParams } from 'typescript-router'
 
   export let params: RouteParams<AppRouter, 'user'>
 </script>

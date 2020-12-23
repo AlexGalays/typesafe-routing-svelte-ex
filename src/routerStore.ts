@@ -1,4 +1,4 @@
-import { Route, Router } from './util/router'
+import { Route, Router } from 'typescript-router'
 import { derived, readable } from 'svelte/store'
 import { userId } from './user'
 import { isoDate, object } from 'idonttrustlikethat'

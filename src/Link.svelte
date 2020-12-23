@@ -1,7 +1,7 @@
 <script lang="typescript">
   import { router } from './routerStore'
   import type { AppRouter } from './routerStore'
-  import type { RouteAndParams } from './util/router'
+  import type { RouteAndParams } from 'typescript-router'
 
   export let extraClassNames: string | undefined = undefined
 
