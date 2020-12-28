@@ -3,12 +3,12 @@
   import type { AppRouter } from './routerStore'
   import type { RouteAndParams } from 'typescript-router'
 
-  export let extraClassNames: string | undefined = undefined
+  export let className: string | undefined = undefined
 
   export let route: RouteAndParams<AppRouter>
   export let replace: boolean = false
 
-  $: href = route ? router.link(route[0], route[1]) : undefined
+  $: href = router.link(route[0], route[1])
 
   let preventClickDefault = false
 
@@ -41,17 +41,6 @@
   }
 </script>
 
-<style>
-  .active {
-    cursor: pointer;
-  }
-</style>
-
-<a
-  class={extraClassNames}
-  class:active={Boolean(href)}
-  {href}
-  on:mousedown={onMouseDown}
-  on:click={onClick}>
+<a class={className} {href} on:mousedown={onMouseDown} on:click={onClick}>
   <slot />
 </a>
