@@ -6,6 +6,12 @@
   export let params: RouteParams<AppRouter, 'users'>
 </script>
 
+<div in:fade={{ duration: 120 }}>
+  <h2>Users</h2>
+
+  <p>{params.date.toDateString()}</p>
+</div>
+
 <style>
   div {
     background-color: #66ff66;
@@ -15,9 +21,3 @@
     padding: 8px;
   }
 </style>
-
-<div in:fade={{ duration: 120 }}>
-  <h2>Users</h2>
-
-  <p>{params.date.toDateString()}</p>
-</div>

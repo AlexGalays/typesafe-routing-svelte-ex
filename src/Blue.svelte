@@ -6,6 +6,10 @@
   export let params: RouteParams<AppRouter, 'user'>
 </script>
 
+<div in:fade={{ duration: 120 }}>
+  <h2>User #{params.id}</h2>
+</div>
+
 <style>
   div {
     background-color: #6666ff;
@@ -15,7 +19,3 @@
     padding: 8px;
   }
 </style>
-
-<div in:fade={{ duration: 120 }}>
-  <h2>User #{params.id}</h2>
-</div>

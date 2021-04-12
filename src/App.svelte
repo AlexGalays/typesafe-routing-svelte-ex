@@ -12,6 +12,28 @@
   $: route = $routeStore
 </script>
 
+<div class="app">
+  <h1>Routing example</h1>
+
+  <nav>
+    <Link route={['index', {}]}>Index</Link>
+    <Link route={['users', { date: new Date().toISOString() }]}>Users</Link>
+    <Link route={['user', { id: userId }]}>User</Link>
+  </nav>
+
+  <main>
+    {#if route.name === 'index'}
+      <Red />
+    {:else if route.name === 'users'}
+      <Green params={route.params} />
+    {:else if route.name === 'user'}
+      <Blue params={route.params} />
+    {:else}
+      <p>404</p>
+    {/if}
+  </main>
+</div>
+
 <style>
   .app {
     display: flex;
@@ -35,25 +57,3 @@
     --section-size: 200px;
   }
 </style>
-
-<div class="app">
-  <h1>Routing example</h1>
-
-  <nav>
-    <Link route={['index', {}]}>Index</Link>
-    <Link route={['users', { date: new Date().toISOString() }]}>Users</Link>
-    <Link route={['user', { id: userId }]}>User</Link>
-  </nav>
-
-  <main>
-    {#if route.name === 'index'}
-      <Red />
-    {:else if route.name === 'users'}
-      <Green params={route.params} />
-    {:else if route.name === 'user'}
-      <Blue params={route.params} />
-    {:else}
-      <p>404</p>
-    {/if}
-  </main>
-</div>
